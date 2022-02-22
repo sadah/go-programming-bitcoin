@@ -23,8 +23,5 @@ func (fe *FieldElement) Equal(other *FieldElement) bool {
 }
 
 func (fe *FieldElement) NotEqual(other *FieldElement) bool {
-	if other == nil {
-		return false
-	}
 	return !fe.Equal(other)
 }
