@@ -21,6 +21,14 @@ func (fe *FieldElement) String() string {
 	return fmt.Sprintf("FieldElement_%v(%v)", fe.prime, fe.num)
 }
 
+func (fe *FieldElement) Num() int64 {
+	return fe.num
+}
+
+func (fe *FieldElement) Prime() int64 {
+	return fe.prime
+}
+
 func (fe *FieldElement) Equal(other *FieldElement) bool {
 	if other == nil {
 		return false
