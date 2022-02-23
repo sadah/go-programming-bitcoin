@@ -3,29 +3,30 @@ package ecc
 
 import (
 	"fmt"
+	"math/big"
 )
 
 type FieldElement struct {
-	num   int64
-	prime int64
+	num   *big.Int
+	prime *big.Int
 }
 
 func NewFieldElement(num, prime int64) (*FieldElement, error) {
 	if num >= prime || num < 0 {
 		return nil, fmt.Errorf("'Num %v not in field range 0 to %v'", num, prime-1)
 	}
-	return &FieldElement{num, prime}, nil
+	return &FieldElement{big.NewInt(num), big.NewInt(prime)}, nil
 }
 
 func (fe *FieldElement) String() string {
 	return fmt.Sprintf("FieldElement_%v(%v)", fe.prime, fe.num)
 }
 
-func (fe *FieldElement) Num() int64 {
+func (fe *FieldElement) Num() *big.Int {
 	return fe.num
 }
 
-func (fe *FieldElement) Prime() int64 {
+func (fe *FieldElement) Prime() *big.Int {
 	return fe.prime
 }
 
@@ -33,7 +34,7 @@ func (fe *FieldElement) Equal(other *FieldElement) bool {
 	if other == nil {
 		return false
 	}
-	return fe.num == other.num && fe.prime == other.prime
+	return fe.num.Cmp(other.num) == 0 && fe.prime.Cmp(other.prime) == 0
 }
 
 func (fe *FieldElement) NotEqual(other *FieldElement) bool {
@@ -41,67 +42,61 @@ func (fe *FieldElement) NotEqual(other *FieldElement) bool {
 }
 
 func (fe *FieldElement) Add(other *FieldElement) (*FieldElement, error) {
-	if fe.prime != other.prime {
+	if fe.prime.Cmp(other.prime) != 0 {
 		return nil, fmt.Errorf("cannot add two numbers in different Fields")
 	}
-	num := (fe.num + other.num) % fe.prime
-	return NewFieldElement(num, fe.prime)
+	ret := big.NewInt(0)
+	ret.Add(fe.num, other.num).Mod(ret, fe.prime)
+	return &FieldElement{ret, fe.prime}, nil
 }
 
 func (fe *FieldElement) Sub(other *FieldElement) (*FieldElement, error) {
-	if fe.prime != other.prime {
+	if fe.prime.Cmp(other.prime) != 0 {
 		return nil, fmt.Errorf("cannot subtract two numbers in different Fields")
 	}
-	num := (fe.num - other.num) % fe.prime
-	if num < 0 {
-		num += fe.prime
-	}
-	return NewFieldElement(num, fe.prime)
+	ret := big.NewInt(0)
+	ret.Sub(fe.num, other.num).Mod(ret, fe.prime)
+	return &FieldElement{ret, fe.prime}, nil
 }
 
 func (fe *FieldElement) Mul(other *FieldElement) (*FieldElement, error) {
-	if fe.prime != other.prime {
+	if fe.prime.Cmp(other.prime) != 0 {
 		return nil, fmt.Errorf("cannot multiply two numbers in different Fields")
 	}
-	num := (fe.num % fe.prime) * (other.num % fe.prime) % fe.prime
-	return NewFieldElement(num, fe.prime)
+	// num := (fe.num % fe.prime) * (other.num % fe.prime) % fe.prime
+	ret := big.NewInt(0)
+	ret.Mul(fe.num, other.num).Mod(ret, fe.prime)
+	return &FieldElement{ret, fe.prime}, nil
 }
 
 func (fe *FieldElement) Pow(exponent int64) (*FieldElement, error) {
 	if exponent == 0 {
-		return NewFieldElement(1, fe.prime)
+		return &FieldElement{big.NewInt(1), fe.prime}, nil
 	}
 	// use Fermat's little theorem
-	n := exponent % (fe.prime - 1)
-	if n < 0 {
-		n += fe.prime - 1
-	}
-	var t *FieldElement
-	var err error
-	t, err = NewFieldElement(fe.num, fe.prime)
-	if err != nil {
-		return nil, err
-	}
-	// won't use big numbers
-	for i := 1; i < int(n); i++ {
-		t, err = t.Mul(fe)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return t, nil
+	// n = exponent % (prime - 1)
+	n := big.NewInt(0)
+	prime := big.NewInt(0).Set(fe.prime)
+	n.Mod(big.NewInt(exponent), prime.Sub(prime, big.NewInt(1)))
+
+	ret := big.NewInt(0)
+	ret.Exp(fe.num, n, fe.prime)
+	return &FieldElement{ret, fe.prime}, nil
 }
 
 func (fe *FieldElement) Div(other *FieldElement) (*FieldElement, error) {
-	if fe.prime != other.prime {
+	if fe.prime.Cmp(other.prime) != 0 {
 		return nil, fmt.Errorf("cannot divide two numbers in different Fields")
 	}
-	if other.num == 0 {
+	if big.NewInt(0).Cmp(other.num) == 0 {
 		return nil, fmt.Errorf("cannot divide by zero")
 	}
-	pow, err := other.Pow(fe.prime - 2)
-	if err != nil {
-		return nil, err
-	}
-	return fe.Mul(pow)
+
+	prime := big.NewInt(0).Set(fe.prime)
+	n := prime.Sub(prime, big.NewInt(2))
+	ret := big.NewInt(0)
+	// ret = num * pow(other.num, prime - 2, prime) % prime
+	ret.Exp(other.num, n, fe.prime)
+	ret.Mul(ret, fe.num)
+	return &FieldElement{ret, fe.prime}, nil
 }

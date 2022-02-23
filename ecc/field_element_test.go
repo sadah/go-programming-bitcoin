@@ -1,6 +1,7 @@
 package ecc
 
 import (
+	"math/big"
 	"reflect"
 	"testing"
 )
@@ -19,13 +20,13 @@ func TestNewFieldElement(t *testing.T) {
 		{
 			name:    "OK",
 			args:    args{0, 31},
-			want:    &FieldElement{0, 31},
+			want:    &FieldElement{big.NewInt(0), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "OK",
 			args:    args{1, 31},
-			want:    &FieldElement{1, 31},
+			want:    &FieldElement{big.NewInt(1), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
@@ -51,8 +52,8 @@ func TestNewFieldElement(t *testing.T) {
 
 func TestFieldElement_Equal(t *testing.T) {
 	type fields struct {
-		num   int64
-		prime int64
+		num   *big.Int
+		prime *big.Int
 	}
 	type args struct {
 		other *FieldElement
@@ -65,25 +66,26 @@ func TestFieldElement_Equal(t *testing.T) {
 	}{
 		{
 			name:   "OK",
-			fields: fields{0, 31},
-			args:   args{other: &FieldElement{0, 31}},
+			fields: fields{big.NewInt(0), big.NewInt(31)},
+			args:   args{other: &FieldElement{big.NewInt(0), big.NewInt(31)}},
 			want:   true,
 		},
 		{
 			name:   "OK",
-			fields: fields{2, 31},
-			args:   args{other: &FieldElement{2, 31}},
+			fields: fields{big.NewInt(2), big.NewInt(31)},
+			args:   args{other: &FieldElement{big.NewInt(2), big.NewInt(31)}},
 			want:   true,
 		},
 		{
 			name:   "NG",
-			fields: fields{2, 31},
-			args:   args{other: &FieldElement{15, 31}},
-			want:   false,
+			fields: fields{big.NewInt(2), big.NewInt(31)},
+			args:   args{other: &FieldElement{big.NewInt(1), big.NewInt(31)}},
+
+			want: false,
 		},
 		{
 			name:   "NG",
-			fields: fields{2, 31},
+			fields: fields{big.NewInt(2), big.NewInt(31)},
 			args:   args{other: nil},
 			want:   false,
 		},
@@ -103,8 +105,8 @@ func TestFieldElement_Equal(t *testing.T) {
 
 func TestFieldElement_NotEqual(t *testing.T) {
 	type fields struct {
-		num   int64
-		prime int64
+		num   *big.Int
+		prime *big.Int
 	}
 	type args struct {
 		other *FieldElement
@@ -116,20 +118,20 @@ func TestFieldElement_NotEqual(t *testing.T) {
 		want   bool
 	}{
 		{
-			name:   "OK",
-			fields: fields{2, 31},
-			args:   args{other: &FieldElement{2, 31}},
+			name:   "NG",
+			fields: fields{big.NewInt(2), big.NewInt(31)},
+			args:   args{other: &FieldElement{big.NewInt(2), big.NewInt(31)}},
 			want:   false,
 		},
 		{
-			name:   "NG",
-			fields: fields{2, 31},
-			args:   args{other: &FieldElement{15, 31}},
+			name:   "OK",
+			fields: fields{big.NewInt(2), big.NewInt(31)},
+			args:   args{other: &FieldElement{big.NewInt(15), big.NewInt(31)}},
 			want:   true,
 		},
 		{
-			name:   "NG",
-			fields: fields{2, 31},
+			name:   "OK",
+			fields: fields{big.NewInt(2), big.NewInt(31)},
 			args:   args{other: nil},
 			want:   true,
 		},
@@ -149,8 +151,8 @@ func TestFieldElement_NotEqual(t *testing.T) {
 
 func TestFieldElement_Add(t *testing.T) {
 	type fields struct {
-		num   int64
-		prime int64
+		num   *big.Int
+		prime *big.Int
 	}
 	type args struct {
 		other *FieldElement
@@ -164,23 +166,23 @@ func TestFieldElement_Add(t *testing.T) {
 	}{
 		{
 			name:    "OK",
-			fields:  fields{2, 31},
-			args:    args{other: &FieldElement{15, 31}},
-			want:    &FieldElement{17, 31},
+			fields:  fields{big.NewInt(2), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(15), big.NewInt(31)}},
+			want:    &FieldElement{big.NewInt(17), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "OK",
-			fields:  fields{17, 31},
-			args:    args{other: &FieldElement{21, 31}},
-			want:    &FieldElement{7, 31},
+			fields:  fields{big.NewInt(17), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(21), big.NewInt(31)}},
+			want:    &FieldElement{big.NewInt(7), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "OK",
-			fields:  fields{0, 31},
-			args:    args{other: &FieldElement{21, 31}},
-			want:    &FieldElement{21, 31},
+			fields:  fields{big.NewInt(0), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(21), big.NewInt(31)}},
+			want:    &FieldElement{big.NewInt(21), big.NewInt(31)},
 			wantErr: false,
 		},
 	}
@@ -204,8 +206,8 @@ func TestFieldElement_Add(t *testing.T) {
 
 func TestFieldElement_Sub(t *testing.T) {
 	type fields struct {
-		num   int64
-		prime int64
+		num   *big.Int
+		prime *big.Int
 	}
 	type args struct {
 		other *FieldElement
@@ -219,23 +221,23 @@ func TestFieldElement_Sub(t *testing.T) {
 	}{
 		{
 			name:    "OK",
-			fields:  fields{29, 31},
-			args:    args{other: &FieldElement{4, 31}},
-			want:    &FieldElement{25, 31},
+			fields:  fields{big.NewInt(29), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(4), big.NewInt(31)}},
+			want:    &FieldElement{big.NewInt(25), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "OK",
-			fields:  fields{15, 31},
-			args:    args{other: &FieldElement{30, 31}},
-			want:    &FieldElement{16, 31},
+			fields:  fields{big.NewInt(15), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(30), big.NewInt(31)}},
+			want:    &FieldElement{big.NewInt(16), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "OK",
-			fields:  fields{0, 31},
-			args:    args{other: &FieldElement{30, 31}},
-			want:    &FieldElement{1, 31},
+			fields:  fields{big.NewInt(0), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(30), big.NewInt(31)}},
+			want:    &FieldElement{big.NewInt(1), big.NewInt(31)},
 			wantErr: false,
 		},
 	}
@@ -259,8 +261,8 @@ func TestFieldElement_Sub(t *testing.T) {
 
 func TestFieldElement_Mul(t *testing.T) {
 	type fields struct {
-		num   int64
-		prime int64
+		num   *big.Int
+		prime *big.Int
 	}
 	type args struct {
 		other *FieldElement
@@ -273,24 +275,23 @@ func TestFieldElement_Mul(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name:   "OK",
+			fields: fields{big.NewInt(24), big.NewInt(31)},
+			args:   args{other: &FieldElement{big.NewInt(19), big.NewInt(31)}},
+			want:   &FieldElement{big.NewInt(22), big.NewInt(31)},
+		},
+		{
 			name:    "OK",
-			fields:  fields{24, 31},
-			args:    args{other: &FieldElement{19, 31}},
-			want:    &FieldElement{22, 31},
+			fields:  fields{big.NewInt(0), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(1), big.NewInt(31)}},
+			want:    &FieldElement{big.NewInt(0), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "OK",
-			fields:  fields{0, 31},
-			args:    args{other: &FieldElement{1, 31}},
-			want:    &FieldElement{0, 31},
-			wantErr: false,
-		},
-		{
-			name:    "OK",
-			fields:  fields{1, 31},
-			args:    args{other: &FieldElement{0, 31}},
-			want:    &FieldElement{0, 31},
+			fields:  fields{big.NewInt(1), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(0), big.NewInt(31)}},
+			want:    &FieldElement{big.NewInt(0), big.NewInt(31)},
 			wantErr: false,
 		},
 	}
@@ -314,8 +315,8 @@ func TestFieldElement_Mul(t *testing.T) {
 
 func TestFieldElement_Pow(t *testing.T) {
 	type fields struct {
-		num   int64
-		prime int64
+		num   *big.Int
+		prime *big.Int
 	}
 	type args struct {
 		exponent int64
@@ -329,30 +330,30 @@ func TestFieldElement_Pow(t *testing.T) {
 	}{
 		{
 			name:    "OK",
-			fields:  fields{17, 31},
+			fields:  fields{big.NewInt(17), big.NewInt(31)},
 			args:    args{exponent: 3},
-			want:    &FieldElement{15, 31},
+			want:    &FieldElement{big.NewInt(15), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "OK",
-			fields:  fields{7, 31},
+			fields:  fields{big.NewInt(7), big.NewInt(31)},
 			args:    args{exponent: -3},
-			want:    &FieldElement{16, 31},
+			want:    &FieldElement{big.NewInt(16), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "OK",
-			fields:  fields{7, 31},
+			fields:  fields{big.NewInt(7), big.NewInt(31)},
 			args:    args{exponent: 1},
-			want:    &FieldElement{7, 31},
+			want:    &FieldElement{big.NewInt(7), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "OK",
-			fields:  fields{7, 31},
+			fields:  fields{big.NewInt(7), big.NewInt(31)},
 			args:    args{exponent: 0},
-			want:    &FieldElement{1, 31},
+			want:    &FieldElement{big.NewInt(1), big.NewInt(31)},
 			wantErr: false,
 		},
 	}
@@ -376,8 +377,8 @@ func TestFieldElement_Pow(t *testing.T) {
 
 func TestFieldElement_Div(t *testing.T) {
 	type fields struct {
-		num   int64
-		prime int64
+		num   *big.Int
+		prime *big.Int
 	}
 	type args struct {
 		other *FieldElement
@@ -391,22 +392,22 @@ func TestFieldElement_Div(t *testing.T) {
 	}{
 		{
 			name:    "OK",
-			fields:  fields{3, 31},
-			args:    args{other: &FieldElement{24, 31}},
-			want:    &FieldElement{4, 31},
+			fields:  fields{big.NewInt(3), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(24), big.NewInt(31)}},
+			want:    &FieldElement{big.NewInt(4), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "OK",
-			fields:  fields{0, 31},
-			args:    args{other: &FieldElement{24, 31}},
-			want:    &FieldElement{0, 31},
+			fields:  fields{big.NewInt(0), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(24), big.NewInt(31)}},
+			want:    &FieldElement{big.NewInt(0), big.NewInt(31)},
 			wantErr: false,
 		},
 		{
 			name:    "NG",
-			fields:  fields{3, 31},
-			args:    args{other: &FieldElement{0, 31}},
+			fields:  fields{big.NewInt(3), big.NewInt(31)},
+			args:    args{other: &FieldElement{big.NewInt(0), big.NewInt(31)}},
 			want:    nil,
 			wantErr: true,
 		},
