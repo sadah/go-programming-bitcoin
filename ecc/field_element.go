@@ -97,6 +97,6 @@ func (fe *FieldElement) Div(other *FieldElement) (*FieldElement, error) {
 	ret := big.NewInt(0)
 	// ret = num * pow(other.num, prime - 2, prime) % prime
 	ret.Exp(other.num, n, fe.prime)
-	ret.Mul(ret, fe.num)
+	ret.Mul(ret, fe.num).Mod(ret, fe.prime)
 	return &FieldElement{ret, fe.prime}, nil
 }
