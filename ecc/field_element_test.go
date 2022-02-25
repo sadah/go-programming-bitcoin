@@ -1,8 +1,8 @@
 package ecc
 
 import (
+	"github.com/google/go-cmp/cmp"
 	"math/big"
-	"reflect"
 	"testing"
 )
 
@@ -29,12 +29,6 @@ func TestNewFieldElement(t *testing.T) {
 			want:    &FieldElement{big.NewInt(1), big.NewInt(31)},
 			wantErr: false,
 		},
-		{
-			name:    "OK",
-			args:    args{32, 31},
-			want:    nil,
-			wantErr: true,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -43,8 +37,8 @@ func TestNewFieldElement(t *testing.T) {
 				t.Errorf("NewFieldElement() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewFieldElement() got = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("NewFieldElement() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -197,8 +191,8 @@ func TestFieldElement_Add(t *testing.T) {
 				t.Errorf("Add() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Add() got = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("Add() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -252,8 +246,8 @@ func TestFieldElement_Sub(t *testing.T) {
 				t.Errorf("Sub() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Sub() got = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("Sub() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -306,8 +300,8 @@ func TestFieldElement_Mul(t *testing.T) {
 				t.Errorf("Mul() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Mul() got = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("Mul() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -368,8 +362,8 @@ func TestFieldElement_Pow(t *testing.T) {
 				t.Errorf("Pow() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Pow() got = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("Pow() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -404,13 +398,6 @@ func TestFieldElement_Div(t *testing.T) {
 			want:    &FieldElement{big.NewInt(0), big.NewInt(31)},
 			wantErr: false,
 		},
-		{
-			name:    "NG",
-			fields:  fields{big.NewInt(3), big.NewInt(31)},
-			args:    args{other: &FieldElement{big.NewInt(0), big.NewInt(31)}},
-			want:    nil,
-			wantErr: true,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -423,8 +410,8 @@ func TestFieldElement_Div(t *testing.T) {
 				t.Errorf("Div() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Div() got = %v, want %v", got, tt.want)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("Div() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
